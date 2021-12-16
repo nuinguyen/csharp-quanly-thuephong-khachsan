@@ -17,10 +17,16 @@ namespace BTL
         {
             InitializeComponent();
         }
+        string Map;
+        public BaocaoDV(string text)
+        {
+            InitializeComponent();
+            this.Map = text;
+        }
 
         private void BaocaoDV_Load(object sender, EventArgs e)
         {
-            string sql = "select * from tblDichVu";
+            string sql = "select * from tblDichVu where MaP='"+Map+"'";
             DataTable dt = new DataTable();
             DataProvider provider = new DataProvider();
 

@@ -115,7 +115,6 @@ namespace BTL
             this.label40 = new System.Windows.Forms.Label();
             this.label39 = new System.Windows.Forms.Label();
             this.label38 = new System.Windows.Forms.Label();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tb_ql = new System.Windows.Forms.TabPage();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tp_qlp = new System.Windows.Forms.TabPage();
@@ -655,6 +654,7 @@ namespace BTL
             this.tb_ngaynhandp.Name = "tb_ngaynhandp";
             this.tb_ngaynhandp.Size = new System.Drawing.Size(139, 26);
             this.tb_ngaynhandp.TabIndex = 19;
+            this.tb_ngaynhandp.ValueChanged += new System.EventHandler(this.tb_ngaynhandp_ValueChanged);
             // 
             // tb_mahddp
             // 
@@ -990,7 +990,6 @@ namespace BTL
             // 
             this.tabControl3.Alignment = System.Windows.Forms.TabAlignment.Right;
             this.tabControl3.Controls.Add(this.tp_hd);
-            this.tabControl3.Controls.Add(this.tabPage1);
             this.tabControl3.Location = new System.Drawing.Point(0, 3);
             this.tabControl3.Multiline = true;
             this.tabControl3.Name = "tabControl3";
@@ -1190,16 +1189,6 @@ namespace BTL
             this.label38.TabIndex = 0;
             this.label38.Text = "DANH SÁCH HÓA ĐƠN";
             // 
-            // tabPage1
-            // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 4);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1225, 626);
-            this.tabPage1.TabIndex = 2;
-            this.tabPage1.Text = "Thống Kê";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
             // tb_ql
             // 
             this.tb_ql.Controls.Add(this.tabControl2);
@@ -1295,6 +1284,7 @@ namespace BTL
             this.bt_searchp.TabIndex = 17;
             this.bt_searchp.Text = "Tìm kiếm";
             this.bt_searchp.UseVisualStyleBackColor = true;
+            this.bt_searchp.Click += new System.EventHandler(this.bt_searchp_Click);
             // 
             // bt_escp
             // 
@@ -1393,6 +1383,7 @@ namespace BTL
             // 
             // tb_statusp
             // 
+            this.tb_statusp.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.tb_statusp.FormattingEnabled = true;
             this.tb_statusp.Location = new System.Drawing.Point(93, 8);
             this.tb_statusp.Name = "tb_statusp";
@@ -1608,6 +1599,7 @@ namespace BTL
             this.bt_searchdv.TabIndex = 16;
             this.bt_searchdv.Text = "Tìm Kiếm";
             this.bt_searchdv.UseVisualStyleBackColor = true;
+            this.bt_searchdv.Click += new System.EventHandler(this.bt_searchdv_Click);
             // 
             // bt_adddv
             // 
@@ -1686,6 +1678,7 @@ namespace BTL
             // 
             // tb_unitdv
             // 
+            this.tb_unitdv.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.tb_unitdv.FormattingEnabled = true;
             this.tb_unitdv.Location = new System.Drawing.Point(93, 8);
             this.tb_unitdv.Name = "tb_unitdv";
@@ -1861,6 +1854,7 @@ namespace BTL
             this.bt_searchnv.TabIndex = 16;
             this.bt_searchnv.Text = "Tìm Kiếm";
             this.bt_searchnv.UseVisualStyleBackColor = true;
+            this.bt_searchnv.Click += new System.EventHandler(this.bt_searchnv_Click);
             // 
             // panel7
             // 
@@ -2178,6 +2172,7 @@ namespace BTL
             this.bt_searchkh.TabIndex = 16;
             this.bt_searchkh.Text = "Tìm Kiếm";
             this.bt_searchkh.UseVisualStyleBackColor = true;
+            this.bt_searchkh.Click += new System.EventHandler(this.bt_searchkh_Click);
             // 
             // panel11
             // 
@@ -2680,7 +2675,6 @@ namespace BTL
         private System.Windows.Forms.Label label40;
         private System.Windows.Forms.Label label39;
         private System.Windows.Forms.Label label38;
-        private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Panel panel49;
         private System.Windows.Forms.Panel panel50;
         private System.Windows.Forms.Panel panel53;

@@ -29,30 +29,7 @@ namespace BTL
             LoadDatDichVu();
         }
 
-        ///       THÊM BT NHÓM     \\\\\\\\\\
-        ///       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //// ĐÓNG\\\\\\\
-
+       
 
         //////   ĐẶT DICH VU   \\\\\\
         // Hàm hiện Dịch Vụ
@@ -116,39 +93,55 @@ namespace BTL
 
             //int i = dgv_dsdp.CurrentRow.Index;
             int j = dgv_dsddv.RowCount;
-          
-            DataProvider provider = new DataProvider();
-            /*            provider.ExecuteQuery(query);
-            */
-            //MessageBox.Show(dgv_dsddv.Rows[0].Cells[2].Value.ToString().ToString());
 
+            DataProvider provider = new DataProvider();
+            //MessageBox.Show(dgv_dsddv.Rows[0].Cells[2].Value.ToString().ToString());
             for (int i = 0; i < j - 1; i++)
             {
-                string query = "insert into tblChiTietDichVu values('"
-               + tb_mahdddv.Text + "','"
-               + dgv_dsddv.Rows[i].Cells[0].Value.ToString() + "','"
-               + tb_mapddv.SelectedValue.ToString() + "','"
-               + dgv_dsddv.Rows[i].Cells[2].Value.ToString() + "','"
-               + dgv_dsddv.Rows[i].Cells[3].Value.ToString() + "')";
-                provider.ExecuteQuery(query);
+                string s = "select count(*) from tblChiTietDichVu where " +
+                    "MaDV='" + dgv_dsddv.Rows[i].Cells[0].Value.ToString() + "' and " +
+                    "MaP='" + tb_mapddv.SelectedValue.ToString() + "'  ";
+
+                if (provider.ExecuteQuery(s).Rows[0][0].ToString() == "0")
+                {
+                    string query = "insert into tblChiTietDichVu values('"
+                   + tb_mahdddv.Text + "','"
+                   + dgv_dsddv.Rows[i].Cells[0].Value.ToString() + "','"
+                   + tb_mapddv.SelectedValue.ToString() + "','"
+                   + dgv_dsddv.Rows[i].Cells[2].Value.ToString() + "','"
+                   + dgv_dsddv.Rows[i].Cells[3].Value.ToString() + "')";
+                    provider.ExecuteQuery(query);
+                }
+                else
+                {
+                    string query = "update tblChiTietDichVu set SoLuong = SoLuong + " + dgv_dsddv.Rows[i].Cells[2].Value.ToString() + " where " +
+                    "tblChiTietDichVu.MaDV = '" + dgv_dsddv.Rows[i].Cells[0].Value.ToString() + "' and " +
+                    "tblChiTietDichVu.MaP = '" + tb_mapddv.SelectedValue.ToString() + "' ";
+                    provider.ExecuteQuery(query);
+                }
             }
+            //MessageBox.Show(provider.ExecuteQuery(s).Rows[0][0].ToString());
+            /*  for (int i = 0; i < j - 1; i++)
+              {
+                  string query = "insert into tblChiTietDichVu values('"
+                 + tb_mahdddv.Text + "','"
+                 + dgv_dsddv.Rows[i].Cells[0].Value.ToString() + "','"
+                 + tb_mapddv.SelectedValue.ToString() + "','"
+                 + dgv_dsddv.Rows[i].Cells[2].Value.ToString() + "','"
+                 + dgv_dsddv.Rows[i].Cells[3].Value.ToString() + "')";
+                  provider.ExecuteQuery(query);
+              }
+              dgv_dsddv.DataSource = null;
+              tb_mahdddv.Text = tb_maddv.Text= tb_dongiaddv.Text = "";*/
             dgv_dsddv.DataSource = null;
-            tb_mahdddv.Text = tb_maddv.Text= tb_dongiaddv.Text = "";
+            tb_mahdddv.Text = tb_maddv.Text = tb_dongiaddv.Text = "";
             MessageBox.Show("Cám ơn bạn đã đặt Dịch Vụ".ToString());
+            LoadHoaDon();
 
         }
-
 
         //////   ĐẶT PHÒNG   \\\\\\
-
-        private void bt_themdphong_Click(object sender, EventArgs e)
-        {
-                string query = "select * from tblPhong  where MaP = '" + tb_madp.Text + "'";
-                //MessageBox.Show(tb_dmp.Text.ToString());
-                DataProvider provider = new DataProvider();
-                dgv_dsdp.AutoGenerateColumns = false;
-                dgv_dsdp.Rows.Add(provider.ExecuteQuery(query).Rows[0][0].ToString(), provider.ExecuteQuery(query).Rows[0][1].ToString(), provider.ExecuteQuery(query).Rows[0][2].ToString(), provider.ExecuteQuery(query).Rows[0][4].ToString(), tb_ngaythuedp.Text);
-        }
+       
         private void bt_xoadp_Click(object sender, EventArgs e)
         {
             int i;
@@ -189,7 +182,6 @@ namespace BTL
             for (int i = 0; i < lsBtnXD.Count; i++)
             {
                 lsBtnXD[i].Click += btn_Click;
-                /*lsBtnXD[i].Leave += btn_Leave;*/
                 tlp_dsphong.Controls.Add(lsBtnXD[i]);
             }
 
@@ -229,37 +221,74 @@ namespace BTL
             LoadDatPhong(null);
         }
         Queue<Button> btnQ = new Queue<Button>();
+        private void bt_themdphong_Click(object sender, EventArgs e)
+        {
+            DataProvider provider = new DataProvider();
 
+            string query = "select * from tblPhong  where MaP = '" + tb_madp.Text + "'";
+            //MessageBox.Show(tb_dmp.Text.ToString());
+            string query1 = "select tblHoaDon.NgayNhan,tblHoaDon.NgayTra from tblHoaDon " +
+               "join tblChiTietPhong on tblHoaDon.MaHD=tblChiTietPhong.MaHD " +
+               "where tblChiTietPhong.MaP = N'" + tb_madp.Text + "' ";
+            if (provider.ExecuteQuery(query).Rows[0][3].ToString() == "Đã Đặt")
+            {
+                if (tb_ngaynhandp.Value < DateTime.Parse(provider.ExecuteQuery(query1).Rows[0][1].ToString()))
+                {
+                    MessageBox.Show("Vui lòng ngày nhập phòng lớn hơn ngày trả Phòng".ToString());
+                }
+                else
+                {
+                    dgv_dsdp.AutoGenerateColumns = false;
+                    dgv_dsdp.Rows.Add(provider.ExecuteQuery(query).Rows[0][0].ToString(), provider.ExecuteQuery(query).Rows[0][1].ToString(), provider.ExecuteQuery(query).Rows[0][2].ToString(), provider.ExecuteQuery(query).Rows[0][4].ToString(), tb_ngaythuedp.Text);
+
+                }
+            }
+            else
+            {
+                dgv_dsdp.AutoGenerateColumns = false;
+                dgv_dsdp.Rows.Add(provider.ExecuteQuery(query).Rows[0][0].ToString(), provider.ExecuteQuery(query).Rows[0][1].ToString(), provider.ExecuteQuery(query).Rows[0][2].ToString(), provider.ExecuteQuery(query).Rows[0][4].ToString(), tb_ngaythuedp.Text);
+
+            }
+        }
         private void btn_Click(object sender, EventArgs e)
         {
             Button btn = sender as Button;
             btnQ.Enqueue(btn);
             string[] v = btn.Text.Split(' ');
             //MessageBox.Show(v[1].ToString());
-            string query = "select * from tblPhong  where TenP = '" + v[0] + "' and LoaiP =N'" + v[1]+"';";
+            string query = "select * from tblPhong  where TenP = N'" + v[0] + "' and LoaiP =N'" + v[1]+"';";
             DataProvider provider = new DataProvider();
-
-            if (provider.ExecuteQuery(query).Rows[0][3].ToString()=="Đã Đặt")
-            {
-                MessageBox.Show("Phòng đã có khách đặt".ToString());
-            }
-            else
-            {
+            string query1 = "select tblHoaDon.NgayNhan,tblHoaDon.NgayTra from tblHoaDon " +
+              "join tblChiTietPhong on tblHoaDon.MaHD=tblChiTietPhong.MaHD " +
+              "where tblChiTietPhong.MaP = N'" + provider.ExecuteQuery(query).Rows[0][0].ToString() + "' ";
+            if (provider.ExecuteQuery(query).Rows[0][3].ToString() == "Đã Đặt")
+                MessageBox.Show("Trả Phòng: " + provider.ExecuteQuery(query1).Rows[0][1].ToString(), "Nhận Phòng: " + provider.ExecuteQuery(query1).Rows[0][0].ToString().ToString());
             tb_madp.Text = provider.ExecuteQuery(query).Rows[0][0].ToString();
             tb_dongiadp.Text = provider.ExecuteQuery(query).Rows[0][4].ToString();
-            }
          
+        }
+        private void tb_ngaynhandp_ValueChanged(object sender, EventArgs e)
+        {
+          
         }
         //----ĐĂNG KÝ PHONG----\\\
 
         private void bt_registerdp_Click(object sender, EventArgs e)
         {
             DateTime now = DateTime.Now;
-
+            //MessageBox.Show(now.ToString(), ToString());
             //int i = dgv_dsdp.CurrentRow.Index;
+            string query;
             int j=dgv_dsdp.RowCount;
-            //MessageBox.Show(j.ToString());
-            string query = "insert into tblHoaDon values('"
+
+            //MessageBox.Show(dgv_dsdp.Rows[0].Cells[0].Value.ToString().ToString());
+            string query10 = "select count(*) from tblHoaDon where MaHD ='" + tb_mahddp.Text + "'";
+            DataProvider provider = new DataProvider();
+            if (provider.ExecuteQuery(query10).Rows[0][0].ToString() == "0")
+            {
+                if (tb_mahddp.Text != "" && j > 1)
+                {
+                    query = "insert into tblHoaDon values('"
                  + tb_mahddp.Text + "','"
                  + tb_makhdp.Text + "','"
                  + tb_manvdp.Text + "','"
@@ -267,38 +296,50 @@ namespace BTL
                  + tb_ngaynhandp.Value + "','"
                  + tb_ngaynhandp.Value.AddDays((double)tb_ngaythuedp.Value) + "','"
                  + "Chưa Thanh Toán" + "')";
-            DataProvider provider = new DataProvider();
-            provider.ExecuteQuery(query);
 
-            for (int i = 0; i < j - 1; i++)
+                    /*            string query5 = "insert into tblHoaDon values('"+ tb_mahddp.Text + "','"+tb_makhdp.Text + "','"+tb_manvdp.Text + "','"+ now + "','" + tb_ngaynhandp.Value + "',DATEADD(day ,'"+3+"'" +  +",'Chưa Thanh Toán')";
+                    */
+                    provider.ExecuteQuery(query);
+
+                    for (int i = 0; i < j - 1; i++)
+                    {
+                        string query1 = "insert into tblChiTietPhong values('"
+                       + tb_mahddp.Text + "','"
+                       + dgv_dsdp.Rows[i].Cells[0].Value.ToString() + "','"
+                       + dgv_dsdp.Rows[i].Cells[4].Value.ToString() + "','"
+                       + dgv_dsdp.Rows[i].Cells[3].Value.ToString() + "')";
+                        provider.ExecuteQuery(query1);
+                    }
+
+                    for (int i = 0; i < j - 1; i++)
+                    {
+                        string query2 = "update tblPhong  set TinhTrang=N'"
+                            + "Đã Đặt" + "'  where MaP='" + dgv_dsdp.Rows[i].Cells[0].Value.ToString() + "'";
+                        provider.ExecuteQuery(query2);
+                    }
+                    tb_mahddp.Text = "";
+                    dgv_dsdp.DataSource = null;
+                    tb_madp.Text = "";
+                    tb_dongiadp.Text = "";
+                    tlp_dsphong.Controls.Clear();
+                    LoadDatPhong(null);
+                    MessageBox.Show("Cám ơn bạn đã đặt Phòng".ToString());
+                    LoadDatDichVu();
+                    LoadPhong();
+                    LoadHoaDon();
+
+                }
+                else
+                {
+                    MessageBox.Show("Vui lòng điền đẩy đủ thông tin!".ToString());
+                }
+            }
+            else
             {
-                string query1 = "insert into tblChiTietPhong values('"
-               + tb_mahddp.Text + "','"
-               + dgv_dsdp.Rows[i].Cells[0].Value.ToString() + "','"
-               + dgv_dsdp.Rows[i].Cells[4].Value.ToString() + "','"
-               + dgv_dsdp.Rows[i].Cells[3].Value.ToString() + "')";
-                provider.ExecuteQuery(query1);
+                MessageBox.Show("Hóa đơn đã tồn tại".ToString());
             }
 
-            for (int i = 0; i < j - 1; i++)
-            {
-                string query2 = "update tblPhong  set TinhTrang=N'"
-                    + "Đã Đặt" + "'  where MaP='" + dgv_dsdp.Rows[i].Cells[0].Value.ToString() + "'";
-                provider.ExecuteQuery(query2);
-            }
-            tb_mahddp.Text = "";
-            dgv_dsdp.DataSource = null;
-            tb_madp.Text = "";
-            tb_dongiadp.Text = "";
-            tlp_dsphong.Controls.Clear();
-            LoadDatPhong(null);
-            MessageBox.Show("Cám ơn bạn đã đặt Phòng".ToString());
-            
         }
-
-
-
-
 
 
         // Hàm hiện Khach Hàng
@@ -322,15 +363,33 @@ namespace BTL
             int i = dgv_kh.CurrentRow.Index;
             string mak = dgv_kh.Rows[i].Cells[0].Value.ToString();
             string query;
+            string query1 = "select count(*) from tblKhachHang where MaKH ='" + tb_makh.Text + "'";
+            DataProvider provider = new DataProvider();
             if (bt_addkh.Text == "Thêm")
             {
-            query="insert into tblKhachHang values('"
-                    +tb_makh.Text+ "',N'" 
-                    + tb_namekh.Text + "','" 
-                    + SexKhachHang() + "','" 
-                    + tb_cmndkh.Text + "','" 
-                    + tb_phonekh.Text + "',N'" 
-                    + tb_addresskh.Text + "')";
+                if (provider.ExecuteQuery(query1).Rows[0][0].ToString() == "0")
+                {
+                    if (tb_makh.Text !="" && tb_namekh.Text !="" && SexKhachHang()!="" && tb_cmndkh.Text !="" && tb_phonekh.Text!="" && tb_addresskh.Text !="")
+                    {
+                        query = "insert into tblKhachHang values('"
+                                          + tb_makh.Text + "',N'"
+                                          + tb_namekh.Text + "','"
+                                          + SexKhachHang() + "','"
+                                          + tb_cmndkh.Text + "','"
+                                          + tb_phonekh.Text + "',N'"
+                                          + tb_addresskh.Text + "')";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Điền đầy đủ".ToString());
+                        return;
+                    }  
+                }
+                else
+                {
+                    MessageBox.Show("Khách hàng đã tồn tại".ToString());
+                    return;
+                }
             }
             else
             {
@@ -342,7 +401,6 @@ namespace BTL
                     + tb_phonekh.Text + "',DiaChi=N'" 
                     + tb_addresskh.Text + "'  where MaKH='" + mak + "'";
             }
-            DataProvider provider = new DataProvider();
             provider.ExecuteQuery(query);
             LoadKhachHang();
             EscKhachHang();
@@ -360,6 +418,7 @@ namespace BTL
             bt_addkh.Text = "Thêm";
             tb_makh.ReadOnly = false;
             dgv_kh.Enabled = bt_editkh.Enabled = bt_deletekh.Enabled = true;
+            LoadKhachHang();
         }
         void DeleteKhachHang()
         {
@@ -378,7 +437,36 @@ namespace BTL
             InsertKhachHang();
         }
 
-       
+        private void bt_searchkh_Click(object sender, EventArgs e)
+        {
+            DataProvider provider = new DataProvider();
+            string queryhd;
+            if (SexKhachHang() != "")
+            {
+                queryhd = "select * from  tblKhachHang where GioiTinh ='" + SexKhachHang() + "'";
+            }
+            else if (tb_makh.Text != "")
+            {
+                queryhd = "select * from  tblKhachHang where MaKH = N'" + tb_makh.Text + "'";
+            }
+            else if (tb_phonekh.Text != "")
+            {
+                queryhd = "select * from  tblKhachHang where SDT like '%" + tb_phonekh.Text + "%'";
+            }
+            else if (tb_addresskh.Text != "")
+            {
+                queryhd = "select * from  tblKhacHang where DiaChi like N'%" + tb_addresskh.Text + "%'";
+            }
+            else if (tb_namekh.Text != "")
+            {
+                queryhd = "select * from  tblKhacHang where TenKH like N'%" + tb_namekh.Text + "%'";
+            }
+            else
+            {
+                queryhd = "select * from  tblKhachHang where CMND like '%" + tb_cmndkh.Text + "%'";
+            }
+            dgv_kh.DataSource = provider.ExecuteQuery(queryhd);
+        }
         // Lệnh Lấy thông tin kHach Hàng để Sửa
         private void bt_editkh_Click(object sender, EventArgs e)
         {
@@ -436,15 +524,34 @@ namespace BTL
             int i = dgv_nv.CurrentRow.Index;
             string manv = dgv_nv.Rows[i].Cells[0].Value.ToString();
             string query;
+            string query1 = "select count(*) from tblNhanVien where MaNV ='" + tb_manv.Text + "'";
+            DataProvider provider = new DataProvider();
+
             if (bt_addnv.Text == "Thêm")
             {
-                query = "insert into tblNhanVien values('" 
-                    + tb_manv.Text + "',N'" 
-                    + tb_namenv.Text + "',N'" 
-                    + SexNhanVien() + "','" 
-                    + tb_phonenv.Text + "',N'" 
-                    + tb_addressnv.Text + "','" 
+                if (provider.ExecuteQuery(query1).Rows[0][0].ToString() == "0")
+                {
+                    if (tb_manv.Text != "" && tb_namenv.Text != "" && SexNhanVien() != "" && tb_addressnv.Text != "" && tb_phonenv.Text != "" && tb_moneynv.Text != "")
+                    {
+                        query = "insert into tblNhanVien values('"
+                    + tb_manv.Text + "',N'"
+                    + tb_namenv.Text + "',N'"
+                    + SexNhanVien() + "','"
+                    + tb_phonenv.Text + "',N'"
+                    + tb_addressnv.Text + "','"
                     + tb_moneynv.Text + "')";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Điền đầy đủ".ToString());
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Nhân Viên đã tồn tại".ToString());
+                    return;
+                }
             }
             else
             {
@@ -457,7 +564,6 @@ namespace BTL
                     + tb_moneynv.Text + "'  where MaNv='" 
                     + manv + "'";
             }
-            DataProvider provider = new DataProvider();
             provider.ExecuteQuery(query);
             LoadNhanVien();
             EscNhanVien();
@@ -474,6 +580,7 @@ namespace BTL
             bt_addnv.Text = "Thêm";
             tb_manv.ReadOnly = false;
             dgv_nv.Enabled = bt_editnv.Enabled = bt_deletenv.Enabled = true;
+            LoadNhanVien();
         }
         void DeleteNhanVien()
         {
@@ -485,6 +592,38 @@ namespace BTL
             DataProvider provider = new DataProvider();
             provider.ExecuteQuery(query);
             LoadNhanVien();
+        }
+        private void bt_searchnv_Click(object sender, EventArgs e)
+        {
+            DataProvider provider = new DataProvider();
+            string queryhd;
+            if (SexNhanVien() != "")
+            {
+                queryhd = "select * from  tblNhanVien where GioiTinh ='" + SexNhanVien() + "'";
+            }
+            else if (tb_manv.Text != "")
+            {
+                queryhd = "select * from  tblNhanVien where MaNV = N'" + tb_manv.Text + "'";
+            }
+            else if (tb_phonenv.Text != "")
+            {
+                queryhd = "select * from  tblNhanVien where SDT like '%" + tb_phonenv.Text + "%'";
+            }
+            else if (tb_addressnv.Text != "")
+            {
+                queryhd = "select * from  tblNhanVien where DiaChi like N'%" + tb_addressnv.Text + "%'";
+            }
+            else if (tb_namenv.Text != "")
+            {
+                queryhd = "select * from  tblNhanVien where TenNV like N'%" + tb_namenv.Text + "%'";
+            }
+            else
+            {
+                queryhd = "select * from  tblNhanVien where Luong like '%" + tb_moneynv.Text + "%'";
+            }
+            dgv_nv.DataSource = provider.ExecuteQuery(queryhd);
+
+            //MessageBox.Show(tb_statusp.Text.ToString());
         }
 
         private void bt_addnv_Click(object sender, EventArgs e)
@@ -553,14 +692,33 @@ namespace BTL
             int i = dgv_p.CurrentRow.Index;
             string map = dgv_p.Rows[i].Cells[0].Value.ToString();
             string query;
+            string query1= "select count(*) from tblPhong where MaP ='"+tb_map.Text+"'";
+            DataProvider provider = new DataProvider();
+
             if (bt_addp.Text == "Thêm")
             {
-                query = "insert into tblPhong values('"
+                if (provider.ExecuteQuery(query1).Rows[0][0].ToString() == "0")
+                {
+                    if (tb_map.Text != "" && tb_namep.Text != "" && TypePhong() != "" && tb_statusp.Text != "" && tb_pricep.Text != "" )
+                    {
+                        query = "insert into tblPhong values('"
                     + tb_map.Text + "',N'"
                     + tb_namep.Text + "',N'"
                     + TypePhong() + "',N'"
                     + tb_statusp.Text + "','"
                     + tb_pricep.Text + "')";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Điền đầy đủ".ToString());
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Phòng đã tồn tại".ToString());
+                    return;
+                }
             }
             else
             {
@@ -573,10 +731,39 @@ namespace BTL
                     + map + "'";
             }
             tb_map.ReadOnly = false;
-            DataProvider provider = new DataProvider();
             provider.ExecuteQuery(query);
             LoadPhong();
             EscPhong();
+        }
+
+        private void bt_searchp_Click(object sender, EventArgs e)
+        {
+            DataProvider provider = new DataProvider();
+            string queryhd;
+            if (TypePhong() != "")
+            {
+                queryhd = "select * from  tblPhong where LoaiP like '%" + TypePhong() + "%'";
+            }
+            else if (tb_map.Text != "")
+            {
+                queryhd = "select * from  tblPhong where MaP like '%" + tb_map.Text + "%'";
+            }
+            else if (tb_namep.Text != "")
+            {
+                queryhd = "select * from  tblPhong where TenP like '%" + tb_namep.Text + "%'";
+            }
+            else if (tb_statusp.Text != "")
+            {
+                queryhd = "select * from  tblPhong where TinhTrang = N'" + tb_statusp.Text + "'";
+            }
+            else
+            {
+                queryhd = "select * from  tblPhong where DonGia like '%" + tb_pricep.Text + "%'";
+            }
+            dgv_p.DataSource = provider.ExecuteQuery(queryhd);
+
+            //MessageBox.Show(tb_statusp.Text.ToString());
+
         }
         // Hành Thoát
         void EscPhong()
@@ -589,6 +776,7 @@ namespace BTL
             bt_addp.Text = "Thêm";
             tb_manv.ReadOnly = false;
             dgv_p.Enabled = bt_editp.Enabled = bt_deletep.Enabled = true;
+            LoadPhong();
         }
         void DeletePhong()
         {
@@ -665,13 +853,33 @@ namespace BTL
             int i = dgv_dv.CurrentRow.Index;
             string madv = dgv_dv.Rows[i].Cells[0].Value.ToString();
             string query;
+            string query1 = "select count(*) from tblDichVu where MaDV ='" + tb_madv.Text + "'";
+            DataProvider provider = new DataProvider();
+
             if (bt_adddv.Text == "Thêm")
             {
-                query = "insert into tblDichVu values('"
+               
+                    if (provider.ExecuteQuery(query1).Rows[0][0].ToString() == "0")
+                {
+                    if (tb_madv.Text != "" && tb_namedv.Text != "" && tb_unitdv.Text != "" && tb_phonekh.Text != "" && tb_pricedv.Text != "")
+                    {
+                        query = "insert into tblDichVu values('"
                     + tb_madv.Text + "',N'"
                     + tb_namedv.Text + "',N'"
                     + tb_unitdv.Text + "','"
                     + tb_pricedv.Text + "')";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Điền đầy đủ".ToString());
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Dịch vụ đã tồn tại".ToString());
+                    return;
+                }
             }
             else
             {
@@ -682,10 +890,32 @@ namespace BTL
                     + tb_pricedv.Text + "'  where MaDV='"
                     + madv + "'";
             }
-            DataProvider provider = new DataProvider();
             provider.ExecuteQuery(query);
             LoadDichVu();
             EscDichVu();
+        }
+
+        private void bt_searchdv_Click(object sender, EventArgs e)
+        {
+            DataProvider provider = new DataProvider();
+            string queryhd;
+            if (tb_madv.Text != "" )
+            {
+                queryhd = "select * from  tblDichVu where MaDV like '%" + tb_madv.Text + "%'";
+            }
+            else if ( tb_namedv.Text != "" )
+            {
+                queryhd = "select * from  tblDichVu where TenDV like N'%" + tb_namedv.Text + "%'";
+            }
+            else if ( tb_unitdv.Text != "" )
+            {
+                queryhd = "select * from  tblDichVu where DonViTinh like N'%" + tb_unitdv.Text + "%'";
+            }
+            else
+            {
+                queryhd = "select * from  tblDichVu where DonGia like '%" + tb_pricedv.Text + "%'";
+            }
+            dgv_dv.DataSource = provider.ExecuteQuery(queryhd);
         }
         // Hành Thoát
         void EscDichVu()
@@ -697,6 +927,7 @@ namespace BTL
             bt_adddv.Text = "Thêm";
             tb_madv.ReadOnly = false;
             dgv_dv.Enabled = bt_editdv.Enabled = bt_deletedv.Enabled = true;
+            LoadDichVu();
         }
         void DeleteDichVu()
         {
@@ -724,11 +955,9 @@ namespace BTL
             tb_madv.Text = dgv_dv.Rows[i].Cells[0].Value.ToString();
             tb_namedv.Text = dgv_dv.Rows[i].Cells[1].Value.ToString();
             tb_unitdv.Text = dgv_dv.Rows[i].Cells[2].Value.ToString();
-            tb_pricedv.Text = dgv_dv.Rows[i].Cells[3].Value.ToString();
-            
+            tb_pricedv.Text = dgv_dv.Rows[i].Cells[3].Value.ToString();  
             bt_adddv.Text = "Ghi Nhận";
             dgv_dv.Enabled = bt_deletedv.Enabled = bt_editdv.Enabled = false;
-
         }
 
         private void bt_deletedv_Click(object sender, EventArgs e)
@@ -764,22 +993,6 @@ namespace BTL
                 DataProvider provider = new DataProvider();
                 dgv_dshddp.DataSource = provider.ExecuteQuery(query);
                 dgv_dshdddv.DataSource = provider.ExecuteQuery(query1);
-                /* create proc sp_summ
-                 (
-                 @id varchar(10)
-                 )
-                 as
-                 begin
-                 declare @gtri1 int
-                 set @gtri1 = (select sum(SoNgayThue * DonGia) from tblChiTietPhong where MaHD = @id)
-                 declare @gtri2 int;
-                 set @gtri2 = (select sum(SoLuong * DonGia) from tblChiTietDichVu where MaHD = @id)
-                 if @gtri2 is NULL
-                 set @gtri2 = 0
-                 declare @sum int;
-                 set @sum = @gtri1 + @gtri2;
-                 select @sum
-                 end*/
                 string query2 = "exec sp_summ @id='" + mahd + "'";
                 tb_hdsum.Text = provider.ExecuteQuery(query2).Rows[0][0].ToString();
                 bt_hdfinish.Enabled = bt_hdprinter.Enabled = true;
@@ -793,6 +1006,8 @@ namespace BTL
                 dgv_dshddp.DataSource = null;
                 dgv_hd.Enabled = true;
                 tb_hdsum.Text = "";
+                bt_hdfinish.Enabled = bt_hdprinter.Enabled = false;
+
             }
 
         }
@@ -825,16 +1040,12 @@ namespace BTL
             int i;
             i = dgv_hd.CurrentRow.Index;
             string mahd = dgv_hd.Rows[i].Cells[0].Value.ToString();
-
-            HoaDon hd = new HoaDon();
-            TextObject bc = (TextObject) hd.Section4.ReportObjects["tb_moneybchd"];
+/*            HoaDon hd = new HoaDon();
+            TextObject bc = (TextObject)hd.Section4.ReportObjects["tb_moneybchd"];
             decimal tongtien = Convert.ToDecimal(tb_hdsum.Text);
             MessageBox.Show(bc.Text.ToString());
-
-            bc.Text = "123";            
-
+            bc.Text = "123";*/
             BaocaoHD bchd = new BaocaoHD(mahd);
-      
             bchd.Show();
         }
 
@@ -858,9 +1069,41 @@ namespace BTL
 
         private void bt_printp_Click(object sender, EventArgs e)
         {
-          
-            BaocaoP bcp = new BaocaoP();
+
+            BaocaoP bcp = new BaocaoP(tb_map.Text);
             bcp.Show();
         }
+
+      
+
+
+        /*  private void bt_reportp_Click(object sender, EventArgs e)
+          {
+              BaocaoP bchd = new BaocaoP(tb_map.Text);
+              bchd.Show();
+          }*/
+
+        /* private void bt_searchp_Click(object sender, EventArgs e)
+         {
+
+             string dkloc = "MaP<>'" + "'";
+             if (!string.IsNullOrEmpty(tb_namep.Text))
+             {
+                 dkloc += string.Format("AND TenP Like '%{0}%'", tb_namep.Text);
+             }
+             if (!string.IsNullOrEmpty(tb_map.Text))
+             {
+                 dkloc += string.Format("AND MaP like '%{0}%'", tb_map.Text);
+
+             }
+
+             DataView dv = dgv_p.DataSource as DataView;
+             dv.RowFilter = dkloc;
+
+             //DataProvider provider = new DataProvider();
+
+             dgv_p.DataSource =dv;
+
+         }*/
     }
 }
